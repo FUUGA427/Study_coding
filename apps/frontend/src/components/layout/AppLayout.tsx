@@ -2,10 +2,17 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import { useAuthStore } from "@/stores/auth";
 
-const NAV = [
+type NavItem = {
+  to: string;
+  label: string;
+  /** コーディングメニュー専用: AI予定バッジを表示 */
+  withAiBadge?: boolean;
+};
+
+const NAV: NavItem[] = [
   { to: "/dashboard", label: "ダッシュボード" },
   { to: "/courses", label: "コース" },
-  { to: "/practice", label: "コーディング" },
+  { to: "/practice", label: "コーディング", withAiBadge: true },
   // 「履歴」はメニューから非表示 (ルートは保持)
 ];
 
@@ -30,12 +37,25 @@ export function AppLayout() {
                 to={n.to}
                 className={({ isActive }) =>
                   clsx(
-                    "px-2 py-1 rounded hover:text-brand-600",
-                    isActive ? "text-brand-600 font-medium" : "text-slate-600",
+                    "relative inline-flex items-center gap-1.5 rounded px-2 py-1 transition",
+                    isActive
+                      ? n.withAiBadge
+                        ? "text-white bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-cyan-400 shadow motion-safe:animate-neon"
+                        : "text-brand-600 font-medium"
+                      : "text-slate-600 hover:text-brand-600",
                   )
                 }
               >
-                {n.label}
+                <span>{n.label}</span>
+                {n.withAiBadge && (
+                  <span
+                    aria-label="AIレビュー予定"
+                    title="AIレビュー予定"
+                    className="rounded-full bg-gradient-to-r from-purple-500 to-cyan-400 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white shadow-sm motion-safe:animate-pulse-soft"
+                  >
+                    AI
+                  </span>
+                )}
               </NavLink>
             ))}
           </nav>

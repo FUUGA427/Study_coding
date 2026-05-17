@@ -63,6 +63,34 @@
     0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.0); }
     50%      { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.10); }
   }
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translate3d(-24px, 0, 0); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translate3d(0, 24px, 0); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+  @keyframes codeLineIn {
+    from { opacity: 0; transform: translate3d(-8px, 0, 0); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+  @keyframes neonPulse {
+    0%, 100% {
+      box-shadow:
+        0 0 0 0 rgba(99, 102, 241, 0),
+        0 0 12px rgba(99, 102, 241, 0.3);
+    }
+    50% {
+      box-shadow:
+        0 0 0 2px rgba(99, 102, 241, 0.15),
+        0 0 22px rgba(168, 85, 247, 0.55);
+    }
+  }
+  @keyframes codeGlyphBob {
+    0%, 100% { transform: translateY(0); opacity: 0.6; }
+    50%      { transform: translateY(-3px); opacity: 1; }
+  }
 
   .animate-fade-up {
     animation: fadeUp 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -79,6 +107,21 @@
   .course-card-glow {
     animation: cardGlow 2.4s ease-in-out infinite;
   }
+  .animate-slide-in-left {
+    animation: slideInLeft 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .animate-slide-up {
+    animation: slideUp 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .animate-code-line {
+    animation: codeLineIn 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .animate-neon {
+    animation: neonPulse 2.6s ease-in-out infinite;
+  }
+  .animate-code-glyph {
+    animation: codeGlyphBob 1.4s ease-in-out infinite;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -86,7 +129,12 @@
   .animate-grow-x,
   .animate-pulse-soft,
   .animate-pop,
-  .course-card-glow {
+  .course-card-glow,
+  .animate-slide-in-left,
+  .animate-slide-up,
+  .animate-code-line,
+  .animate-neon,
+  .animate-code-glyph {
     animation: none !important;
   }
   .course-card { transition: none !important; }
