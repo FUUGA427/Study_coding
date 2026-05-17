@@ -2,6 +2,15 @@
 
 AIで個別最適化するプログラミング学習プラットフォーム。モノレポ構成。
 
+リポジトリ: https://github.com/FUUGA427/Study_coding
+
+## ブランチ運用
+
+- `main` — リリース対象。直接 push 不可、PR 経由でのみマージ可能。force push / 削除も禁止。
+- `develop` — 開発用デフォルトブランチ。日々の作業はここに乗せる。
+- 機能追加は `develop` から feature ブランチを切って PR → `develop` にマージ。
+- リリース時は `develop` → `main` の PR を作成してマージ。
+
 ## 構成
 
 ```
