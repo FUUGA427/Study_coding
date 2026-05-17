@@ -1,75 +1,102 @@
-import { Link } from "react-router-dom";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { listCourses } from "@/api/courses";
-import { queryKeys } from "@/lib/queryKeys";
-import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState, ErrorState, LoadingState } from "@/components/common/LoadingState";
 import { getErrorMessage } from "@/lib/api";
-import clsx from "clsx";
+import { fetchCourseCatalog } from "@/data/catalog";
+import { CourseCard } from "@/components/courses/CourseCard";
+import {
+  CourseFilters,
+  type CategoryFilter,
+  type LevelFilter,
+} from "@/components/courses/CourseFilters";
+import {
+  CourseStatsHeader,
+  type CourseStats,
+} from "@/components/courses/CourseStatsHeader";
 
-const LEVEL_LABEL: Record<string, string> = {
-  beginner: "初級",
-  intermediate: "中級",
-  advanced: "上級",
-};
+const CATALOG_QUERY_KEY = ["catalog", "courses"] as const;
 
 export function CoursesPage() {
   const { data, isLoading, error } = useQuery({
-    queryKey: queryKeys.courses,
-    queryFn: listCourses,
+    queryKey: CATALOG_QUERY_KEY,
+    queryFn: fetchCourseCatalog,
   });
 
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState<CategoryFilter>("all");
+  const [level, setLevel] = useState<LevelFilter>("all");
+
+  const courses = data?.courses ?? [];
+
+  const stats: CourseStats = useMemo(() => {
+    return {
+      inProgressCount: courses.filter((c) => c.status === "in-progress").length,
+      completedCount: courses.filter((c) => c.status === "completed").length,
+      totalQuestions: courses.reduce((acc, c) => acc + c.questionCount, 0),
+      totalHours: courses.reduce((acc, c) => acc + c.estimatedHours, 0),
+    };
+  }, [courses]);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return courses.filter((c) => {
+      if (category !== "all" && c.category !== category) return false;
+      if (level !== "all" && c.level !== level) return false;
+      if (q) {
+        const haystack = `${c.title} ${c.description} ${c.tags.join(" ")}`.toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [courses, category, level, search]);
+
+  const filtersActive = search.trim() !== "" || category !== "all" || level !== "all";
+
   return (
-    <div>
-      <PageHeader
-        title="コース一覧"
-        description="初級から順番に学習を進めましょう。前提コースを完了すると次が解放されます。"
-      />
-      {isLoading && <LoadingState />}
-      {error && <ErrorState message={getErrorMessage(error)} />}
-      {data && data.courses.length === 0 && <EmptyState message="コースがまだありません" />}
-      <div className="grid gap-4 md:grid-cols-2">
-        {data?.courses.map((c) => {
-          const pct = Number(c.progress_pct);
-          const content = (
+    <div className="catalog-bg -mx-4 -my-6 min-h-[calc(100vh-3.5rem)] px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-6xl space-y-6">
+        <header className="motion-safe:animate-fade-up">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            コースを選んで学習を始めよう
+          </h1>
+          <p className="mt-1 text-sm text-slate-600 sm:text-base">
+            フロントエンド、バックエンド、AI、インフラまで楽しく学べます
+          </p>
+        </header>
+
+        {isLoading && <LoadingState />}
+        {error && <ErrorState message={getErrorMessage(error)} />}
+
+        {!isLoading && !error && (
+          <>
+            <CourseStatsHeader stats={stats} />
+
+            <CourseFilters
+              search={search}
+              onSearchChange={setSearch}
+              category={category}
+              onCategoryChange={setCategory}
+              level={level}
+              onLevelChange={setLevel}
+            />
+
             <div
-              className={clsx(
-                "card p-5 h-full transition",
-                c.is_unlocked ? "hover:border-brand-500 hover:shadow" : "opacity-60",
-              )}
+              key={`${category}-${level}-${search}`}
+              className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
             >
-              <div className="flex items-center gap-2 mb-2">
-                <span className="badge bg-brand-50 text-brand-700">
-                  {LEVEL_LABEL[c.level] ?? c.level}
-                </span>
-                {!c.is_unlocked && (
-                  <span className="badge bg-slate-100 text-slate-500">ロック中</span>
-                )}
-                {c.progress_status === "completed" && (
-                  <span className="badge bg-emerald-100 text-emerald-700">完了</span>
-                )}
-              </div>
-              <h2 className="text-lg font-semibold">{c.title}</h2>
-              <p className="text-sm text-slate-600 mt-1 line-clamp-3">{c.description}</p>
-              <div className="mt-4">
-                <div className="h-2 bg-slate-100 rounded overflow-hidden">
-                  <div
-                    className="h-full bg-brand-500"
-                    style={{ width: `${Math.min(pct, 100)}%` }}
-                  />
-                </div>
-                <div className="text-xs text-slate-500 mt-1">進捗 {pct.toFixed(1)}%</div>
-              </div>
+              {filtered.map((course, i) => (
+                <CourseCard key={course.id} course={course} index={i} />
+              ))}
             </div>
-          );
-          return c.is_unlocked ? (
-            <Link key={c.id} to={`/courses/${c.id}`} className="block">
-              {content}
-            </Link>
-          ) : (
-            <div key={c.id}>{content}</div>
-          );
-        })}
+
+            {filtered.length === 0 &&
+              (filtersActive ? (
+                <EmptyState message="条件に一致するコースが見つかりませんでした。フィルターを変えてみてください。" />
+              ) : (
+                <EmptyState message="コースがまだありません" />
+              ))}
+          </>
+        )}
       </div>
     </div>
   );

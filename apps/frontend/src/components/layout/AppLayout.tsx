@@ -5,8 +5,8 @@ import { useAuthStore } from "@/stores/auth";
 const NAV = [
   { to: "/dashboard", label: "ダッシュボード" },
   { to: "/courses", label: "コース" },
-  { to: "/practice", label: "練習問題" },
-  { to: "/history", label: "履歴" },
+  { to: "/practice", label: "コーディング" },
+  // 「履歴」はメニューから非表示 (ルートは保持)
 ];
 
 export function AppLayout() {

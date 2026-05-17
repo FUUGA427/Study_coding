@@ -21,6 +21,9 @@
   .card {
     @apply bg-white rounded-lg border border-slate-200 shadow-sm;
   }
+  .card-soft {
+    @apply rounded-2xl shadow-sm;
+  }
   .input {
     @apply w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500;
   }
@@ -30,4 +33,61 @@
   .badge {
     @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium;
   }
+  .catalog-bg {
+    background:
+      radial-gradient(1200px 400px at 0% -10%, rgba(99, 102, 241, 0.10), transparent 60%),
+      radial-gradient(900px 400px at 100% 0%, rgba(236, 72, 153, 0.10), transparent 60%),
+      linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  }
+}
+
+@layer utilities {
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translate3d(0, 12px, 0); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+  @keyframes growX {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+  @keyframes pulseSoft {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.55; }
+  }
+  @keyframes popIn {
+    0%   { transform: scale(0.2) rotate(-20deg); opacity: 0; }
+    70%  { transform: scale(1.15) rotate(8deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+  }
+  @keyframes cardGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.0); }
+    50%      { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.10); }
+  }
+
+  .animate-fade-up {
+    animation: fadeUp 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .animate-grow-x {
+    animation: growX 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .animate-pulse-soft {
+    animation: pulseSoft 1.8s ease-in-out infinite;
+  }
+  .animate-pop {
+    animation: popIn 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  .course-card-glow {
+    animation: cardGlow 2.4s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-grow-x,
+  .animate-pulse-soft,
+  .animate-pop,
+  .course-card-glow {
+    animation: none !important;
+  }
+  .course-card { transition: none !important; }
 }

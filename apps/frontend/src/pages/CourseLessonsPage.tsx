@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import { listLessons } from "@/api/courses";
@@ -19,13 +19,24 @@ const STATUS_STYLE: Record<string, string> = {
   not_started: "bg-slate-100 text-slate-500",
 };
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export function CourseLessonsPage() {
   const { courseId = "" } = useParams();
+  const isUuid = !!courseId && UUID_RE.test(courseId);
+
   const { data, isLoading, error } = useQuery({
     queryKey: queryKeys.lessons(courseId),
     queryFn: () => listLessons(courseId),
-    enabled: !!courseId,
+    enabled: isUuid,
   });
+
+  // UUID形式じゃないIDは backend に投げると 404 になるダミーカタログのIDなので
+  // 新ルート (/catalog/courses/:courseId) に転送する。古いタブやブックマーク向けの保険。
+  if (courseId && !isUuid) {
+    return <Navigate to={`/catalog/courses/${courseId}`} replace />;
+  }
 
   return (
     <div>
